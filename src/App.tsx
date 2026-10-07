@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ProductCard } from './components/ProductCard'
 import { ConfirmationDialog } from './components/ConfirmationDialog'
 import { PaymentProcessingOverlay } from './components/PaymentProcessingOverlay'
@@ -10,6 +10,8 @@ import {
   createTransactionReference,
   PRODUCTS,
   validateCash,
+  updateCashInput,
+  getCashPreview,
   type Cart,
   type PaymentMethod,
   type Product,
@@ -94,6 +96,9 @@ function StepTracker({ step }: { step: Step }) {
 }
 
 function App() {
+  const headingRef = useRef<HTMLHeadingElement>(null)
+  const [fullscreen, setFullscreen] = useState(false)
+  const [orderVisible, setOrderVisible] = useState(false)
   const [step, setStep] = useState<Step>('menu')
   const [cart, setCart] = useState<Cart>(() => createCart())
   const [category, setCategory] = useState<Category>('All')
@@ -231,12 +236,49 @@ function App() {
     if (!confirmation) return
     if (confirmation.kind === 'remove-item') {
       changeQuantity(confirmation.product.id, -(cart[confirmation.product.id] ?? 0))
+      setToast(`${confirmation.product.name} removed from your order`)
     } else {
       startNewTransaction()
     }
     setConfirmation(null)
   }
 
+  useEffect(() => { headingRef.current?.focus() }, [step])
+
+  useEffect(() => {
+    const update = () => setFullscreen(Boolean(document.fullscreenElement))
+    document.addEventListener('fullscreenchange', update)
+    return () => document.removeEventListener('fullscreenchange', update)
+  }, [])
+
+  useEffect(() => {
+    setOrderVisible(false)
+    const panel = document.getElementById('current-order')
+    if (!panel || typeof IntersectionObserver === 'undefined') return
+    const observer = new IntersectionObserver(([entry]) => setOrderVisible(entry.isIntersecting), { threshold: 0.1 })
+    observer.observe(panel)
+    return () => observer.disconnect()
+  }, [step])
+
+  function viewCurrentOrder() {
+    const panel = document.getElementById('current-order')
+    panel?.focus({ preventScroll: true })
+    panel?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' })
+  }
+
+  async function toggleFullscreen() {
+    try {
+      if (document.fullscreenElement) await document.exitFullscreen()
+      else await document.documentElement.requestFullscreen()
+    } catch { setToast('Fullscreen is unavailable in this browser. You can continue ordering.') }
+  }
+
+  function enterCashKey(key: string) {
+    setCashInput((current) => updateCashInput(current, key))
+    setPaymentError('')
+  }
+
+  const cashPreview = getCashPreview(cashInput, total)
   const subTotal = total
   const currentStepTitle = step === 'menu' ? 'What sounds good?' : step === 'review' ? 'One last look.' : step === 'payment' ? 'Make it yours.' : step === 'success' ? 'All set, salamat!' : 'A little thank-you.'
   const currentStepDescription = step === 'menu' ? 'Fresh from our campus kitchen, made for your break.' : step === 'review' ? 'Check your picks before you choose how to pay.' : step === 'payment' ? 'Choose a way to pay. All methods are safely simulated.' : step === 'success' ? 'Your order is confirmed and ready for pickup.' : 'Here’s the good stuff, all in one place.'
@@ -249,14 +291,14 @@ function App() {
           <span className="brand-name">Timpla<small>Campus Café</small></span>
         </a>
         <div className="header-note"><span className="open-dot" /> A little pause, made better <span className="header-note-sun">✳</span></div>
-        <div className="pickup-pill"><span aria-hidden="true">⌖</span> Campus pickup</div>
+        <button className="fullscreen-button" onClick={() => void toggleFullscreen()}>{fullscreen ? 'Exit fullscreen' : 'Fullscreen'}</button><div className="pickup-pill"><span aria-hidden="true">⌖</span> Campus pickup</div>
       </header>
 
       <main id="top" className="main-content">
         <div className="welcome-row">
           <div>
             <p className="eyebrow"><span>ORDER AT YOUR OWN PACE</span><span className="eyebrow-line" /></p>
-            <h1>{currentStepTitle}</h1>
+            <h1 ref={headingRef} tabIndex={-1}>{currentStepTitle}</h1>
             <p className="welcome-copy">{currentStepDescription}</p>
           </div>
           <StepTracker step={step} />
@@ -284,14 +326,14 @@ function App() {
                 {filteredProducts.map((product) => <ProductCard key={product.id} product={product} quantity={cart[product.id] ?? 0} onAdd={addProduct} />)}
               </div>
               {filteredProducts.length === 0 && <div className="no-results">No merienda by that name. Try another search.</div>}
-              <div className="menu-note"><span>✳</span> Small-batch sips &amp; snacks, made with a little extra love.</div>
+              {!orderVisible && <button className="mobile-cart-button" onClick={viewCurrentOrder}>View order · {itemCount} {itemCount === 1 ? 'item' : 'items'} · {money(total)}</button>}<div className="menu-note"><span>✳</span> Small-batch sips &amp; snacks, made with a little extra love.</div>
             </section>
 
-            <aside className="order-panel" aria-label="Your current order">
+            <aside id="current-order" tabIndex={-1} className="order-panel" aria-label="Your current order">
               <div className="order-panel-header"><div><p className="panel-overline">YOUR TRAY</p><h2>Your order <span className="item-count">{itemCount}</span></h2></div><span className="tray-mark" aria-hidden="true">✳</span></div>
               <OrderItems cart={cart} editable onChange={changeQuantity} onRemove={requestItemRemoval} />
               <div className="order-panel-footer">
-                <div className="subtotal-row"><span>Subtotal</span><strong>{money(subTotal)}</strong></div>
+                <div className="subtotal-row"><span>Subtotal</span><strong aria-live="polite">{money(subTotal)}</strong></div>
                 <div className="pickup-note"><span className="pickup-note-icon">⌖</span><span>Ready for pickup at<br /><strong>Timpla Campus Café</strong></span></div>
                 <button className="button button-primary button-wide" disabled={itemCount === 0} onClick={() => setStep('review')}>Review order <span aria-hidden="true">→</span></button>
                 <p className="tax-note">Prices are in Philippine pesos · No hidden fees</p>
@@ -326,9 +368,17 @@ function App() {
               {paymentMethod === 'Cash' && (
                 <div className="payment-detail cash-detail">
                   <label htmlFor="cash-amount">Amount received</label>
-                  <div className="cash-input-wrap"><span>₱</span><input id="cash-amount" inputMode="decimal" autoComplete="off" placeholder="0" value={cashInput} onChange={(event) => { setCashInput(event.target.value); setPaymentError('') }} /></div>
+                  <div className="cash-input-wrap"><span>₱</span><input id="cash-amount" aria-invalid={Boolean(paymentError)} aria-describedby={paymentError ? "cash-error cash-preview" : "cash-preview"} inputMode="decimal" autoComplete="off" placeholder="0" value={cashInput} onChange={(event) => { setCashInput(event.target.value); setPaymentError('') }} /></div>
                   <div className="cash-helper"><span>Total due <strong>{money(total)}</strong></span><button onClick={() => { setCashInput(String(total)); setPaymentError('') }}>Exact amount</button></div>
-                  {paymentError && <p className="form-error" role="alert">{paymentError}</p>}
+                  <div className="cash-shortcuts" aria-label="Cash amount shortcuts">
+                    {[100, 200, 500, 1000].map((amount) => <button key={amount} type="button" onClick={() => { setCashInput(String(amount)); setPaymentError('') }}>{money(amount)}</button>)}
+                  </div>
+                  <p id="cash-preview" className={`cash-preview ${cashPreview.kind}`} role="status">{cashPreview.kind === 'empty' ? 'Enter the cash amount using the keypad or keyboard.' : cashPreview.kind === 'invalid' ? 'Enter a valid amount with up to two decimal places.' : cashPreview.kind === 'shortfall' ? `Still needed: ${money(cashPreview.amount)}` : `Change: ${money(cashPreview.amount)}`}</p>
+                  <div className="cash-keypad" aria-label="Cash numeric keypad">
+                    {['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', 'Backspace'].map((key) => <button type="button" key={key} aria-label={key === 'Backspace' ? 'Delete last digit' : key === '.' ? 'Decimal point' : key} onClick={() => enterCashKey(key)}>{key === 'Backspace' ? '⌫' : key}</button>)}
+                    <button className="keypad-clear" type="button" onClick={() => enterCashKey('Clear')}>Clear amount</button>
+                  </div>
+                  {paymentError && <p id="cash-error" className="form-error" role="alert">{paymentError}</p>}
                 </div>
               )}
 

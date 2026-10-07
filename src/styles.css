@@ -397,9 +397,65 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
   .confirmation-actions { flex-direction: column-reverse; }
   .confirmation-actions .button { width: 100%; }
 }
+/* Touchscreen controls and readable transaction details. */
+.quantity-control button { width: 48px; height: 48px; font-size: 22px; }
+.quantity-control span { min-width: 22px; font-size: 16px; }
+.remove-item { min-height: 44px; padding: 8px; font-size: 14px; color: #805039; }
+.order-item-main > strong, .review-card .order-item-main > strong { font-size: 15px; white-space: normal; }
+.order-item-main > span, .order-item-end > strong, .review-card .order-item-main > span, .review-card .order-item-end > strong { font-size: 14px; }
+.order-item { flex-wrap: wrap; }
+.button { min-height: 48px; font-size: 15px; }
+.category-tab { min-height: 48px; font-size: 14px; }
+.search-box { height: 48px; }
+.search-box input, .welcome-copy { font-size: 16px; }
+.product-card-description { font-size: 14px; color: #526358; -webkit-line-clamp: unset; }
+.product-card-category { font-size: 12px; color: #805333; }
+.product-card-name { font-size: 18px; }
+.product-card-info { min-height: 140px; }
+.product-card-bottom strong { font-size: 18px; }
+.payment-option-copy strong { font-size: 16px; }
+.payment-option-copy small, .payment-detail p, .cash-helper, .compact-items > div,
+.compact-items strong, .saved-status, .success-copy { font-size: 14px; color: #526358; }
+.payment-option { min-height: 72px; }
+.payment-options { grid-template-columns: 1fr; }
+.confirmation-message { font-size: 16px; color: #526358; }
+.confirmation-actions .button, .success-actions .button { min-height: 48px; }
+.cash-helper button, .text-button, .sync-retry, .fullscreen-button { min-height: 44px; padding: 8px 12px; font-size: 14px; }
+.fullscreen-button { border: 1px solid var(--line); border-radius: 9px; background: var(--paper); color: var(--pine); }
+.cash-shortcuts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.cash-shortcuts button, .cash-keypad button { min-height: 48px; border: 1px solid #b9c8bc; border-radius: 9px; background: var(--paper); color: var(--pine); font-size: 18px; }
+.cash-shortcuts button { flex: 1; padding: 8px 12px; }
+.cash-keypad { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.cash-keypad .keypad-clear { grid-column: 1 / -1; font-size: 16px; }
+.cash-detail .cash-preview { padding: 12px; border-radius: 8px; background: #e7eee8; color: #21493d; font-size: 16px; }
+.cash-detail .cash-preview.shortfall, .cash-detail .cash-preview.invalid { background: #fff1df; color: #805039; }
+.payment-detail .form-error, .form-error { font-size: 15px; color: #9c3e2b; }
+.cash-detail label { font-size: 16px; }
+.receipt-meta, .receipt-meta strong, .receipt-line, .receipt-line > div span,
+.receipt-payment > div, .receipt-payment strong { font-size: 14px; color: #405748; }
+.receipt-meta { grid-template-columns: 1fr; }
+.receipt-meta strong { text-align: left; overflow-wrap: anywhere; }
+.receipt-total { font-size: 18px; }
+.receipt-total strong { font-size: 24px; }
+.receipt-foot, .receipt-foot small { font-size: 13px; }
+.receipt-screen-copy p:not(.panel-overline) { font-size: 16px; }
+.mobile-cart-button { display: none; }
+@media (max-width: 820px) {
+  .mobile-cart-button { display: block; position: fixed; z-index: 4; bottom: 16px; left: 16px; right: 16px; min-height: 52px; border: 0; border-radius: 10px; background: var(--pine); color: white; font-size: 16px; box-shadow: 0 4px 16px #203d3433; }
+  .main-content { padding-bottom: 90px; }
+  .toast-message { bottom: 80px; }
+  #current-order { scroll-margin-top: 16px; }
+}
+@media (max-width: 560px) {
+  .pickup-pill { display: none; }
+  .order-item-end { margin-left: auto; }
+  .product-card-name { font-size: 16px; }
+  .product-card-description { font-size: 13px; }
+  .receipt-screen-actions .button { font-size: 14px; }
+}
 @media print {
   body, .app-shell { background: #fff; }
-  .site-header, .welcome-row, .site-footer, .receipt-screen-copy, .demo-ribbon, .sync-ribbon, .toast-message { display: none !important; }
+  .site-header, .welcome-row, .site-footer, .receipt-screen-copy, .demo-ribbon, .sync-ribbon, .toast-message, .mobile-cart-button { display: none !important; }
   .main-content { width: 100%; margin: 0; padding: 0; }
   .receipt-screen { display: block; width: 100%; margin: 0; }
   .receipt-paper { width: 80mm; margin: 0 auto; border: 0; box-shadow: none; }
