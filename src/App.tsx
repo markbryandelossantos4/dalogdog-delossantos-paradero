@@ -371,7 +371,20 @@ function App() {
               {syncStatus === 'pending' && <button className="sync-retry" onClick={() => void retryCloudSync()}>Try cloud sync again</button>}
               <div className="success-actions"><button className="button button-primary button-wide" onClick={() => setStep('receipt')}>View receipt <span aria-hidden="true">→</span></button><button className="button button-secondary button-wide" onClick={requestNewTransaction}>Start new transaction <span aria-hidden="true">↺</span></button></div>
             </div>
-            <aside className="success-total-card"><span className="success-total-flower" aria-hidden="true">✿</span><p className="panel-overline">YOU’RE ALL SET</p><span className="success-total-label">Paid today</span><strong className="success-total-amount">{money(sale.total)}</strong><div className="success-total-rule" /><span className="success-method-label">Paid with</span><strong className="success-method">{sale.paymentMethod}</strong><p>Thanks for making us part of your campus day.</p></aside>
+            <aside className="success-total-card" aria-label="Payment confirmation details">
+              <span className="success-total-flower" aria-hidden="true">✿</span>
+              <p className="panel-overline">YOU’RE ALL SET</p>
+              <span className="success-total-label">Order total</span>
+              <strong className="success-total-amount">{money(sale.total)}</strong>
+              <span className="success-total-label">Amount paid</span>
+              <strong className="success-method">{money(sale.amountPaid)}</strong>
+              <span className="success-total-label">Change</span>
+              <strong className="success-method">{money(sale.change)}</strong>
+              <div className="success-total-rule" />
+              <span className="success-method-label">Paid with</span>
+              <strong className="success-method">{sale.paymentMethod}</strong>
+              <p>Thanks for making us part of your campus day.</p>
+            </aside>
           </section>
         )}
 
