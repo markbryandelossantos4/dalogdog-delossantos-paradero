@@ -28,7 +28,7 @@ function chooseCash(amount: string) {
 
 async function completePayment(button: string) {
   click(button)
-  await act(async () => { await vi.advanceTimersByTimeAsync(2300) })
+  await act(async () => { await vi.advanceTimersByTimeAsync(1500) })
   expect(screen.getByRole('heading', { name: 'Salamat, your order is in!' })).toBeTruthy()
 }
 
@@ -92,7 +92,7 @@ describe('checkout flow', () => {
 
   it.each([
     ['QR Payment', 'Confirm simulated payment'],
-    ['Credit/Debit Card', 'Start simulation'],
+    ['Credit/Debit Card', 'Simulate card payment'],
   ])('completes %s with exact payment and zero change', async (method, button) => {
     buildOrder()
     checkout()
