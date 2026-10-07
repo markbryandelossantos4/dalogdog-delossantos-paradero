@@ -464,3 +464,155 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+/* Contactless card-payment simulation */
+.card-tap-scene {
+  position: relative;
+  isolation: isolate;
+  width: 184px;
+  height: 126px;
+  margin: 0 auto 8px;
+}
+.card-reader {
+  position: absolute;
+  z-index: 1;
+  right: 12px;
+  bottom: 5px;
+  width: 100px;
+  height: 82px;
+  padding: 8px 8px 12px;
+  border: 1px solid rgba(255,255,255,.52);
+  border-radius: 14px 14px 19px 19px;
+  background: linear-gradient(145deg, #416b58, #23473a 76%);
+  box-shadow: 0 12px 24px rgba(32,61,52,.22), inset 0 1px 0 rgba(255,255,255,.23);
+  transform: perspective(120px) rotateX(3deg);
+}
+.card-reader-screen {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 29px;
+  padding: 0 7px;
+  border: 1px solid rgba(255,255,255,.22);
+  border-radius: 7px;
+  background: #f7f2e5;
+}
+.reader-brand { color: #315744; font: 700 18px/1 Georgia, serif; }
+.reader-ready { color: #66816b; font-size: 6px; font-weight: 800; letter-spacing: 1px; }
+.reader-contactless {
+  position: absolute;
+  top: 44px;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  height: 13px;
+  overflow: hidden;
+}
+.reader-contactless i {
+  width: 16px;
+  height: 16px;
+  margin: -2px -5px 0;
+  border: 1px solid rgba(245,223,169,.88);
+  border-left-color: transparent;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  transform: rotate(45deg);
+}
+.reader-keypad { display: flex; justify-content: center; gap: 5px; margin-top: 8px; }
+.reader-keypad i { width: 5px; height: 4px; border-radius: 2px; background: rgba(255,255,255,.48); }
+.reader-base {
+  position: absolute;
+  right: -7px;
+  bottom: -3px;
+  left: -7px;
+  height: 6px;
+  border-radius: 0 0 8px 8px;
+  background: linear-gradient(90deg, #315542, #537a61, #315542);
+}
+.tap-card {
+  position: absolute;
+  z-index: 3;
+  bottom: 25px;
+  left: 7px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 102px;
+  height: 64px;
+  padding: 9px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.55);
+  border-radius: 11px;
+  background: linear-gradient(135deg, #827d9f, #5d627f 68%, #4f6e72);
+  box-shadow: 0 8px 18px rgba(42,47,72,.25), inset 0 1px 0 rgba(255,255,255,.24);
+  color: white;
+  animation: contactless-card-tap 2.2s cubic-bezier(.35,.02,.2,1) infinite;
+}
+.tap-card::after {
+  position: absolute;
+  top: -22px;
+  right: -18px;
+  width: 66px;
+  height: 66px;
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 50%;
+  content: "";
+}
+.tap-card-chip {
+  width: 17px;
+  height: 13px;
+  border: 1px solid rgba(255,255,255,.72);
+  border-radius: 4px;
+  background: linear-gradient(135deg, #ead9ad 0 46%, #c6ad77 47% 53%, #ead9ad 54%);
+}
+.tap-card-waves {
+  position: absolute;
+  top: 7px;
+  right: 22px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: -6px;
+  transform: rotate(-90deg);
+}
+.tap-card-brand { position: absolute; right: 10px; bottom: 5px; font: 700 17px/1 Georgia, serif; }
+.tap-card-label { position: relative; z-index: 1; font-size: 5px; font-weight: 700; letter-spacing: 1px; opacity: .76; }
+.tap-signal {
+  position: absolute;
+  z-index: 2;
+  right: 47px;
+  bottom: 44px;
+  width: 28px;
+  height: 28px;
+  border: 2px solid rgba(222,174,103,.85);
+  border-radius: 50%;
+  opacity: 0;
+  animation: contactless-wave 2.2s ease-out infinite;
+}
+.tap-signal-two { animation-delay: .18s; }
+.tap-spark { position: absolute; z-index: 4; color: #d39c60; animation: tap-sparkle 1.2s ease-in-out infinite alternate; }
+.tap-spark-one { top: 6px; right: 13px; font-size: 15px; }
+.tap-spark-two { top: 26px; left: 8px; font-size: 10px; animation-delay: .3s; }
+.payment-processing-card-tap { padding-top: 22px; }
+.card-tap-progress span { width: 34%; background: linear-gradient(90deg, #7a7197, #e4b974, #5c8870); }
+@keyframes contactless-card-tap {
+  0%, 12% { transform: translate(0, 0) rotate(-9deg); }
+  40% { transform: translate(35px, -8px) rotate(-5deg); }
+  53%, 69% { transform: translate(47px, -12px) scale(.96) rotate(-3deg); }
+  88%, 100% { transform: translate(0, 0) rotate(-9deg); }
+}
+@keyframes contactless-wave {
+  0%, 38% { opacity: 0; transform: scale(.55); }
+  48% { opacity: .85; }
+  72% { opacity: 0; transform: scale(1.55); }
+  100% { opacity: 0; transform: scale(1.55); }
+}
+@keyframes tap-sparkle {
+  from { opacity: .42; transform: scale(.82) rotate(-12deg); }
+  to { opacity: 1; transform: scale(1.12) rotate(12deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tap-card, .tap-signal, .tap-spark { animation: none; }
+  .tap-card { transform: translate(38px, -9px) rotate(-5deg); }
+  .tap-signal { opacity: .6; transform: scale(1.15); }
+}
