@@ -274,16 +274,42 @@ function App() {
             <section className="menu-section" aria-label="Menu">
               <div className="menu-toolbar">
                 <div className="category-tabs" role="tablist" aria-label="Menu category">
-                  {categories.map((tab) => (
-                    <button key={tab} role="tab" aria-selected={category === tab} className={category === tab ? 'category-tab active' : 'category-tab'} onClick={() => setCategory(tab)}>{tab}</button>
+                  {categories.map((tab, index) => (
+                    <button
+                      key={tab}
+                      id={"category-tab-" + tab.toLowerCase()}
+                      role="tab"
+                      aria-selected={category === tab}
+                      aria-controls="menu-products"
+                      tabIndex={category === tab ? 0 : -1}
+                      className={category === tab ? "category-tab active" : "category-tab"}
+                      onClick={() => setCategory(tab)}
+                      onKeyDown={(event) => {
+                        let nextIndex = index
+                        if (event.key === "ArrowRight") nextIndex = (index + 1) % categories.length
+                        else if (event.key === "ArrowLeft") nextIndex = (index - 1 + categories.length) % categories.length
+                        else if (event.key === "Home") nextIndex = 0
+                        else if (event.key === "End") nextIndex = categories.length - 1
+                        else return
+
+                        event.preventDefault()
+                        setCategory(categories[nextIndex])
+                        const tabs = event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('[role="tab"]')
+                        tabs?.[nextIndex]?.focus()
+                      }}
+                    >
+                      {tab}
+                    </button>
                   ))}
                 </div>
                 <label className="search-box"><span aria-hidden="true">⌕</span><span className="sr-only">Search the menu</span><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Find a favourite" /></label>
               </div>
-              <div className="product-grid">
-                {filteredProducts.map((product) => <ProductCard key={product.id} product={product} quantity={cart[product.id] ?? 0} onAdd={addProduct} />)}
+              <div id="menu-products" role="tabpanel" aria-labelledby={"category-tab-" + category.toLowerCase()} tabIndex={0}>
+                <div className="product-grid">
+                  {filteredProducts.map((product) => <ProductCard key={product.id} product={product} quantity={cart[product.id] ?? 0} onAdd={addProduct} />)}
+                </div>
+                {filteredProducts.length === 0 && <div className="no-results">No merienda by that name. Try another search.</div>}
               </div>
-              {filteredProducts.length === 0 && <div className="no-results">No merienda by that name. Try another search.</div>}
               <div className="menu-note"><span>✳</span> Small-batch sips &amp; snacks, made with a little extra love.</div>
             </section>
 
