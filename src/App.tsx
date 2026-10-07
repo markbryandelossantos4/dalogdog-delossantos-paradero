@@ -176,7 +176,8 @@ function App() {
     }
 
     const saved = await store.save(receipt)
-    const remainingProcessingTime = 1450 - (Date.now() - processingStartedAt)
+    const minimumProcessingTime = paymentMethod === 'Credit/Debit Card' ? 2200 : 1450
+    const remainingProcessingTime = minimumProcessingTime - (Date.now() - processingStartedAt)
     if (remainingProcessingTime > 0) {
       await new Promise((resolve) => window.setTimeout(resolve, remainingProcessingTime))
     }
@@ -402,7 +403,7 @@ function App() {
               )}
 
               {paymentError && paymentMethod !== 'Cash' && <p className="form-error payment-error" role="alert">{paymentError}</p>}
-              <div className="flow-actions payment-actions"><button className="button button-secondary" disabled={processing} onClick={() => setStep('review')}><span aria-hidden="true">←</span> Back to order</button><button className="button button-primary" disabled={processing || !paymentMethod} onClick={() => void submitPayment()}>{processing ? <><span className="button-spinner" /> Processing…</> : paymentMethod === 'Cash' ? `Pay ${money(total)}` : paymentMethod === 'QR Payment' ? 'Confirm simulated payment' : paymentMethod === 'Credit/Debit Card' ? 'Simulate card payment' : 'Choose payment'} <span aria-hidden="true">→</span></button></div>
+              <div className="flow-actions payment-actions"><button className="button button-secondary" disabled={processing} onClick={() => setStep('review')}><span aria-hidden="true">←</span> Back to order</button><button className="button button-primary" disabled={processing || !paymentMethod} onClick={() => void submitPayment()}>{processing ? <><span className="button-spinner" /> Processing…</> : paymentMethod === 'Cash' ? `Pay ${money(total)}` : paymentMethod === 'QR Payment' ? 'Confirm simulated payment' : paymentMethod === 'Credit/Debit Card' ? 'Start simulation' : 'Choose payment'} <span aria-hidden="true">→</span></button></div>
               <p className="simulation-note"><span>ⓘ</span> This kiosk demonstrates a checkout flow; it never processes real payments.</p>
             </div>
             <aside className="payment-order-card"><p className="panel-overline">YOUR ORDER</p><h3>{itemCount} {itemCount === 1 ? 'item' : 'items'} for a good break</h3><div className="compact-items">{PRODUCTS.filter((product) => cart[product.id]).map((product) => <div key={product.id}><span>{product.name} <small>× {cart[product.id]}</small></span><strong>{money(product.price * cart[product.id])}</strong></div>)}</div><div className="payment-total"><span>Total due</span><strong>{money(total)}</strong></div><button className="text-button" onClick={() => setStep('menu')}>Edit your order <span aria-hidden="true">↗</span></button></aside>
