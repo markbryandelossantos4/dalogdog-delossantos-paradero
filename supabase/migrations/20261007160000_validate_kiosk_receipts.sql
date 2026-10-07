@@ -18,8 +18,11 @@ declare
   v_subtotal numeric;
   v_calculated_total numeric := 0;
 begin
-  if pg_catalog.jsonb_typeof(p_items) is distinct from 'array'
-     or pg_catalog.jsonb_array_length(p_items) = 0 then
+  if pg_catalog.jsonb_typeof(p_items) is distinct from 'array' then
+    return false;
+  end if;
+
+  if pg_catalog.jsonb_array_length(p_items) = 0 then
     return false;
   end if;
 
