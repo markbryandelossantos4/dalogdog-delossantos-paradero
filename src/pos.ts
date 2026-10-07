@@ -75,3 +75,20 @@ export function createTransactionReference(date = new Date()): string {
   const suffix = globalThis.crypto.randomUUID().replaceAll('-', '').slice(0, 8).toUpperCase()
   return `TMP-${year}${month}${day}-${suffix}`
 }
+
+// Keypad edits reject extra decimal places; typed input is validated at checkout.
+export function updateCashInput(current: string, key: string): string {
+  if (key === 'Clear') return ''
+  if (key === 'Backspace') return current.slice(0, -1)
+  if (!/^[0-9.]$/.test(key)) return current
+  const next = key === '.' && current === '' ? '0.' : current + key
+  return /^\d+(?:\.\d{0,2})?$/.test(next) ? next : current
+}
+
+export function getCashPreview(input: string, total: number): { kind: 'empty' | 'invalid' | 'shortfall' | 'change'; amount: number } {
+  if (!input.trim()) return { kind: 'empty', amount: 0 }
+  const result = validateCash(input, 0)
+  if (!result.valid) return { kind: 'invalid', amount: 0 }
+  const difference = Math.round((result.amountPaid! - total) * 100) / 100
+  return { kind: difference < 0 ? 'shortfall' : 'change', amount: Math.abs(difference) }
+}

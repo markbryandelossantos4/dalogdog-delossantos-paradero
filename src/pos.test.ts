@@ -40,3 +40,24 @@ describe('Timpla order rules', () => {
     expect(second).not.toBe(first)
   })
 })
+
+describe('cash touchscreen entry', () => {
+  it('handles decimal entry, deletion, clearing and excess decimal digits', async () => {
+    const { updateCashInput } = await import('./pos')
+    expect(updateCashInput('', '.')).toBe('0.')
+    expect(updateCashInput('85.1', '5')).toBe('85.15')
+    expect(updateCashInput('85.15', '9')).toBe('85.15')
+    expect(updateCashInput('85.', '.')).toBe('85.')
+    expect(updateCashInput('85', 'Backspace')).toBe('8')
+    expect(updateCashInput('85', 'Clear')).toBe('')
+  })
+  it('previews shortfall, exact payment and change without accepting malformed amounts', async () => {
+    const { getCashPreview } = await import('./pos')
+    expect(getCashPreview('80', 85)).toEqual({ kind: 'shortfall', amount: 5 })
+    expect(getCashPreview('85', 85)).toEqual({ kind: 'change', amount: 0 })
+    expect(getCashPreview('100', 85)).toEqual({ kind: 'change', amount: 15 })
+    expect(getCashPreview('100.50', 85.25)).toEqual({ kind: 'change', amount: 15.25 })
+    expect(getCashPreview('abc', 85).kind).toBe('invalid')
+    expect(getCashPreview('', 85).kind).toBe('empty')
+  })
+})

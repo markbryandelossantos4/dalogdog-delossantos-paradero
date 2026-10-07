@@ -78,3 +78,11 @@ Record the actual final integration commit, verified clone, repository URL, and 
 | The user supplied the IT415 practical-exam brief and acceptance checklist and requested the Timpla Campus Kiosk implementation. Follow-up prompts requested Supabase setup, payment loading feedback, and confirmation dialogs. | Generated the React/TypeScript kiosk, cart and payment rules, local-first receipt storage, optional Supabase persistence, setup guidance, payment-processing animation, confirmation dialogs, and automated tests. | Eleven automated tests passed; TypeScript and the Vite production build passed. Browser walkthroughs verified product selection, cart editing, preserved back navigation, cash validation and change, QR/card simulations, receipt details, reset, cloud sync, payment feedback, and cancel/confirm modal behavior. Two simulated receipts were confirmed in Supabase with RLS enabled and no anonymous SELECT policy. | Group members should review and explain the code, add their genuine contributions and review evidence, and record the actual submission commit before submission. |
 
 For future AI-assisted edits, add the prompt, response or code area used, how the group checked it, and any changes made. The group should be able to explain its own submitted code.
+
+## Touchscreen and cash-checkout improvements
+
+Quantity controls use 48px touch targets, and product, order, payment, and receipt details use larger text. Cash checkout includes an on-screen keypad, denomination shortcuts, and live change/shortfall feedback while retaining keyboard entry and validation. On narrow screens, View order scrolls to the cart and hides once the cart is visible. Fullscreen controls are available when supported by the browser.
+
+See [the PR description](docs/PR_DESCRIPTION.md) when opening the feature PR.
+
+AI assistance for this follow-up: the user requested frontend improvements and guidance on branching, committing, pushing, and opening a PR. AI generated the touchscreen/cash UX changes and two additional rule tests. Verification: 13 tests passed, production build passed, and browser checks covered cash shortfall/change/receipt, mobile cart access, reset, and fullscreen. The member should review and explain the implementation and record their actual PR and review evidence.
