@@ -13,4 +13,16 @@ describe('payment processing overlay', () => {
     expect(html).toContain('₱153')
     expect(html).toContain('no real payment will be taken')
   })
+
+  it('shows a contactless card tap animation for simulated card payments', () => {
+    const html = renderToStaticMarkup(
+      <PaymentProcessingOverlay method="Credit/Debit Card" total={238} />,
+    )
+
+    expect(html).toContain('card-tap-scene')
+    expect(html).toContain('Tap your card')
+    expect(html).toContain('Hold your card near the reader')
+    expect(html).toContain('no card data or payment is collected')
+    expect(html).toContain('₱238')
+  })
 })
